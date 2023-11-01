@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odoo-app
+  template:
+    metadata:
+      labels:
+        app: odoo-app
+    spec:
+      volumes: 
+        - name: addons
+          persistentVolumeClaim:
+            claimName: pvc-addons
+        - name: config
+          persistentVolumeClaim:
+            claimName: pvc-config
+        - name: webdata
+          persistentVolumeClaim:
+            claimName: pvc-webdata
+      
+      containers:
+        - name: odoo
+          image: odoo:16.0
+          #command: ["/bin/sh","-c"]
+          #args: ["echo 'addons_path = /mnt/extra-addons' >> /etc/odoo/odoo.conf"]
+          securityContext:
+            privileged: true
+          #imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8069
+          env:
+            - name: HOST
+              value: "postgres-service"    
+             #172.18.35.234 192.168.100.100
+            - name: PORT
+              value: "30007"
+#            - name: POSTGRES_DB  [Will be automatically created]
+#              value: odoo-db
+            - name: POSTGRES_USER
+              value: odoo
+            - name: POSTGRES_PASSWORD
+              value: odoo
+          volumeMounts:
+            - mountPath: "/mnt/extra-addons"
+              name: addons
+            - mountPath: "/etc/odoo"
+              name: config
+            - mountPath: "/var/lib/odoo"
+              name: webdata
+            

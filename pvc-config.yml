@@ -1,0 +1,13 @@
+#Static Provisioning
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-config
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: storageclass-odoo
+  volumeName: pv-config
